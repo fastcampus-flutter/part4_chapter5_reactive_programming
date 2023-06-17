@@ -29,10 +29,10 @@ class StockSearchData extends GetxController {
     }
 
     /// TODO: 가정 - 네트워킹 시간 0.5s
-    await Future.delayed(const Duration(milliseconds: 500));
-
     _searchCount++;
     debugPrint('Search count: $_searchCount, Network delay 0.5s');
+
+    await Future.delayed(const Duration(milliseconds: 500));
 
     searchResult.value = stocks.where((element) => element.stockName.contains(text)).toList();
   }

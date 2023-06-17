@@ -41,6 +41,7 @@ dependencies:
   meta: ^1.4.0
   quiver: ^3.2.1
   equatable: ^2.0.5
+  rxdart: ^0.27.7
 
   #util
   velocity_x:
