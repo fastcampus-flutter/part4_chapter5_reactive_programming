@@ -24,15 +24,21 @@ class _StockSearchScreenState extends State<StockSearchScreen> {
     if (!Get.isRegistered<StockSearchData>()) {
       Get.put(StockSearchData());
     }
-    _controller.addListener(() {
-      searchData.search(_controller.text);
-    });
+    _controller.addListener(_search);
     super.initState();
+  }
+
+  void _search() {
+    searchData.search(_controller.text);
   }
 
   @override
   void dispose() {
     searchData.searchResult.clear();
+
+    _controller.removeListener(_search);
+    _controller.dispose();
+
     super.dispose();
   }
 
