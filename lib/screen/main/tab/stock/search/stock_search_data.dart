@@ -16,8 +16,12 @@ class StockSearchData extends GetxController {
 
   int _searchCount = 0;
 
+  /// [문제점]
+  /// 유저가 검색 창에 키워드 입력할 때 마다 네트워킹 작업 필요
+  /// '게임' 검색 시, 총 6번 호출
+
   StreamSubscription? _keywordSubscription;
-  final BehaviorSubject<String> _keyword = BehaviorSubject.seeded('');
+  final PublishSubject<String> _keywordSubject = PublishSubject();
 
   @override
   void onInit() {
@@ -29,7 +33,7 @@ class StockSearchData extends GetxController {
     }();
 
     /// TODO: Throttle time 1s
-    _keywordSubscription = _keyword.debounceTime(const Duration(seconds: 1)).listen(
+    _keywordSubscription = _keywordSubject.debounceTime(const Duration(seconds: 1)).listen(
       (text) {
         _requestSearch(text);
       },
@@ -53,7 +57,7 @@ class StockSearchData extends GetxController {
   }
 
   Future<void> changeKeyword(String text) async {
-    _keyword.value = text;
+    _keywordSubject.add(text);
 
     if (isBlank(text)) {
       searchResult.clear();
@@ -68,7 +72,7 @@ class StockSearchData extends GetxController {
   @override
   void onClose() {
     _keywordSubscription?.cancel();
-    _keyword.close();
+    _keywordSubject.close();
 
     super.onClose();
   }

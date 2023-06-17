@@ -19,8 +19,12 @@ class TossAppBar extends StatefulWidget {
 }
 
 class _TossAppBarState extends State<TossAppBar> {
+  /// [문제점]
+  /// 토글 형태의 버튼을 유저가 짧은 시간 내에 다수 클릭
+  /// 토글 값에 따라 처리 로직 시간이 소요 되는 경우(네트워킹, 무거운 작업)
+
   StreamSubscription? _subscription;
-  final BehaviorSubject<bool> _isOn = BehaviorSubject.seeded(false);
+  final PublishSubject<bool> _isOnSubject = PublishSubject<bool>();
 
   int _count = 0;
 
@@ -29,7 +33,7 @@ class _TossAppBarState extends State<TossAppBar> {
     super.initState();
 
     /// TODO: Throttle time 1s
-    _subscription = _isOn.throttleTime(const Duration(seconds: 1)).listen(
+    _subscription = _isOnSubject.throttleTime(const Duration(seconds: 1)).listen(
       (value) {
         _listen(value);
       },
@@ -39,7 +43,7 @@ class _TossAppBarState extends State<TossAppBar> {
   @override
   void dispose() {
     _subscription?.cancel();
-    _isOn.close();
+    _isOnSubject.close();
 
     super.dispose();
   }
@@ -60,7 +64,7 @@ class _TossAppBarState extends State<TossAppBar> {
       }
     } catch (e, s) {
       /// 실패할 경우, 이전 값 되돌림.
-      _isOn.add(!value);
+      _isOnSubject.add(!value);
 
       debugPrint('Error: $e, StackTrace: $s');
     }
@@ -70,8 +74,8 @@ class _TossAppBarState extends State<TossAppBar> {
     /// 2. 네트워킹 bool 변수로 현재 API 요청 중이면, 무시하는 로직 추가
   }
 
-  Future<void> _onTap() async {
-    _isOn.add(!_isOn.value);
+  Future<void> _onTap(bool current) async {
+    _isOnSubject.add(!current);
   }
 
   @override
@@ -87,12 +91,12 @@ class _TossAppBarState extends State<TossAppBar> {
               children: [
                 width5,
                 StreamBuilder<bool>(
-                  stream: _isOn.stream,
+                  stream: _isOnSubject.stream,
                   builder: (context, snapshot) {
                     final value = snapshot.data ?? false;
 
                     return GestureDetector(
-                      onTap: () => _onTap(),
+                      onTap: () => _onTap(value),
                       behavior: HitTestBehavior.translucent,
                       child: Opacity(
                         opacity: value ? 1 : 0.5,
