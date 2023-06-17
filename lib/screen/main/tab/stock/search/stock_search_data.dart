@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 
@@ -10,6 +11,8 @@ class StockSearchData extends GetxController {
   RxList<String> searchHistoryList = <String>[].obs;
   RxList<SimpleStock> searchResult = <SimpleStock>[].obs;
 
+  int _searchCount = 0;
+
   @override
   void onInit() {
     searchHistoryList.addAll(['삼성전자', 'LG전자', '현대차', '넷플릭스']);
@@ -19,11 +22,18 @@ class StockSearchData extends GetxController {
     super.onInit();
   }
 
-  void search(String text) {
+  Future<void> search(String text) async {
     if (isBlank(text)) {
       searchResult.clear();
       return;
     }
+
+    /// TODO: 가정 - 네트워킹 시간 0.5s
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    _searchCount++;
+    debugPrint('Search count: $_searchCount, Network delay 0.5s');
+
     searchResult.value = stocks.where((element) => element.stockName.contains(text)).toList();
   }
 
