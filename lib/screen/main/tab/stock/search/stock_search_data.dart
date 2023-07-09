@@ -32,7 +32,7 @@ class StockSearchData extends GetxController {
       stocks.addAll(await LocalJson.getObjectList("stock_list.json"));
     }();
 
-    /// TODO: Throttle time 1s
+    /// TODO: debounce time 1s
     _keywordSubscription = _keywordSubject.debounceTime(const Duration(seconds: 1)).listen(
       (text) {
         _requestSearch(text);
