@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -22,9 +21,12 @@ class _TossAppBarState extends State<TossAppBar> {
   /// [문제점]
   /// 토글 형태의 버튼을 유저가 짧은 시간 내에 다수 클릭
   /// 토글 값에 따라 처리 로직 시간이 소요 되는 경우(네트워킹, 무거운 작업)
+  ///
+  /// 로그인을 하면 로그인 API 시간이 걸림. 2초
 
   StreamSubscription? _subscription;
   final PublishSubject<bool> _isOnSubject = PublishSubject<bool>();
+  bool _isRequesting = false;
 
   int _count = 0;
 
@@ -50,6 +52,8 @@ class _TossAppBarState extends State<TossAppBar> {
 
   Future<void> _listen(bool value) async {
     try {
+      _isRequesting = true;
+
       _count++;
       debugPrint('count - $_count');
 
@@ -57,24 +61,28 @@ class _TossAppBarState extends State<TossAppBar> {
       await Future.delayed(const Duration(seconds: 2));
 
       /// 실패할 수도 있음.
-      if (Random().nextBool()) {
-        debugPrint('로그인 성공');
-      } else {
-        throw '로그인 실패';
-      }
+      // if (Random().nextBool()) {
+      //   debugPrint('로그인 성공');
+      // } else {
+      //   throw '로그인 실패';
+      // }
     } catch (e, s) {
       /// 실패할 경우, 이전 값 되돌림.
       _isOnSubject.add(!value);
 
       debugPrint('Error: $e, StackTrace: $s');
+    } finally {
+      _isRequesting = false;
     }
 
     /// 완벽하게 에러를 막기 위한 방법
     /// 1. dialog 같은 팝업 활용 (로그아웃을 하시겠습니까?)
-    /// 2. 네트워킹 bool 변수로 현재 API 요청 중이면, 무시하는 로직 추가
+    /// 2. isRequesting 네트워킹 bool 변수로 현재 API 요청 중이면, 무시하는 로직 추가
   }
 
   Future<void> _onTap(bool current) async {
+    if (_isRequesting) return;
+
     _isOnSubject.add(!current);
   }
 

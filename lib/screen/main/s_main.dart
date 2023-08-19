@@ -14,8 +14,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabItem _currentTab = TabItem.home;
   final tabs = TabItem.values;
   final List<GlobalKey<NavigatorState>> navigatorKeys = [];
@@ -80,8 +79,7 @@ class _MainScreenState extends State<MainScreen>
           .toList());
 
   Future<bool> _handleBackPressed() async {
-    final isFirstRouteInCurrentTab =
-        (await _currentTabNavigationKey.currentState?.maybePop() == false);
+    final isFirstRouteInCurrentTab = (await _currentTabNavigationKey.currentState?.maybePop() == false);
     if (isFirstRouteInCurrentTab) {
       if (_currentTab != TabItem.home) {
         _changeTab(tabs.indexOf(TabItem.home));
@@ -105,6 +103,8 @@ class _MainScreenState extends State<MainScreen>
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
     super.didChangeAppLifecycleState(state);
   }
@@ -115,8 +115,7 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  BottomNavigationBarItem bottomItem(
-      bool activate, IconData iconData, IconData inActivateIconData, String label) {
+  BottomNavigationBarItem bottomItem(bool activate, IconData iconData, IconData inActivateIconData, String label) {
     return BottomNavigationBarItem(
         icon: Icon(
           key: ValueKey(label),
